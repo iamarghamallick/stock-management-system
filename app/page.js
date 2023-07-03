@@ -2,11 +2,15 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { useState, useEffect } from "react";
+import { Puff, ThreeDots } from "react-loader-spinner";
 
 export default function Home() {
   const [productForm, setProductForm] = useState({});
   const [products, setProducts] = useState([]);
   const [alert, setAlert] = useState();
+  const [dropdown, setDropdown] = useState([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -33,21 +37,30 @@ export default function Home() {
       });
       if (response.ok) {
         console.log("Product added successfully");
-        setAlert("Added successfully!")
+        setAlert("Added successfully!");
         setProductForm({});
       } else {
         console.error("Error adding product");
-        setAlert("Error adding product!")
+        setAlert("Error adding product!");
       }
     } catch (error) {
       console.log("Error:", error);
     }
   };
 
+  const onDropdownEdit = async (e) => {
+    setLoading(true);
+    setQuery(e.target.value);
+    let response = await fetch("/api/search?query=" + query);
+    let rJson = await response.json();
+    setDropdown(rJson.products);
+    setLoading(false);
+  };
+
   return (
     <>
       <Header />
-      
+
       {/* Search a product  */}
       <div className="container mx-auto px-4 py-8 bg-blue-50 rounded-lg">
         <div className="flex flex-col md:flex-row items-center justify-center">
@@ -62,6 +75,7 @@ export default function Home() {
 
           <div className="flex-1">
             <input
+              onChange={onDropdownEdit}
               type="text"
               id="search"
               name="search"
@@ -71,12 +85,48 @@ export default function Home() {
           </div>
 
           <div className="m-2">
-            <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md">
-              Search
+            <button className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md w-100">
+              <div className="w-full flex justify-center">
+                {loading ? (
+                  <ThreeDots
+                    height="30"
+                    width="60"
+                    radius="9"
+                    color="white"
+                    ariaLabel="three-dots-loading"
+                    wrapperStyle={{}}
+                    wrapperClassName=""
+                    visible={true}
+                  />
+                ) : (
+                  "Search"
+                )}
+              </div>
             </button>
           </div>
         </div>
       </div>
+
+      {/* drop down  */}
+      {!loading && (
+        <div className="container w-full mx-auto">
+          {dropdown.map((item) => {
+            return (
+              <div
+                key={item.slug}
+                className="w-full bg-blue-200 rounded-lg p-1 flex my-1"
+              >
+                <p className="mx-2">
+                  {item.slug} (
+                  <span className="font-semibold">{item.quantity}</span>{" "}
+                  Available of{" "}
+                  <span className="font-semibold">₹ {item.price}</span>)
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Add a Product */}
       <div className="flex flex-col mx-auto items-center justify-center w-full">
@@ -141,7 +191,7 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center justify-end">
-          <div className=" text-green-700 mx-5">{alert}</div>
+            <div className=" text-green-700 mx-5">{alert}</div>
             <button
               onClick={addProduct}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"
