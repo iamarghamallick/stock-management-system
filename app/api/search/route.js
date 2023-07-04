@@ -20,7 +20,7 @@ export async function GET(request) {
       },
     ]).toArray();
 
-    console.log(products)
+    // console.log(products)
 
     return NextResponse.json({ success: true, products });
   } finally {

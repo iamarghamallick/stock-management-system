@@ -30,7 +30,7 @@ export async function POST(request) {
     const inventory = database.collection("inventory");
 
     const product = await inventory.insertOne(body);
-    console.log(product);
+    // console.log(product);
     return NextResponse.json({ product, ok: true });
   } finally {
     await client.close();

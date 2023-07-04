@@ -2,7 +2,7 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import { useState, useEffect } from "react";
-import { Puff, ThreeDots } from "react-loader-spinner";
+import { ThreeDots } from "react-loader-spinner";
 
 export default function Home() {
   const [productForm, setProductForm] = useState({});
@@ -11,13 +11,18 @@ export default function Home() {
   const [dropdown, setDropdown] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingCurrStock, setLoadingCurrStock] = useState(false);
+  const [loadingAddItem, setLoadingAddItem] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoadingCurrStock(true);
       let response = await fetch("/api/product");
       let rJson = await response.json();
       setProducts(rJson.products);
       // console.log(products);
+      setLoadingCurrStock(false);
     };
     fetchProducts();
   }, []);
@@ -28,6 +33,7 @@ export default function Home() {
   const addProduct = async (e) => {
     e.preventDefault();
     try {
+      setLoadingAddItem(true);
       const response = await fetch("/api/product", {
         method: "POST",
         headers: {
@@ -36,12 +42,14 @@ export default function Home() {
         body: JSON.stringify(productForm),
       });
       if (response.ok) {
-        console.log("Product added successfully");
+        // console.log("Product added successfully");
         setAlert("Added successfully!");
         setProductForm({});
+        setLoadingAddItem(false);
       } else {
-        console.error("Error adding product");
+        // console.error("Error adding product");
         setAlert("Error adding product!");
+        setLoadingAddItem(false);
       }
     } catch (error) {
       console.log("Error:", error);
@@ -56,6 +64,41 @@ export default function Home() {
     setDropdown(rJson.products);
     setLoading(false);
   };
+
+  const buttonAction = async (action, slug, initialQuantity) => {
+    console.log(action, slug, initialQuantity);
+    // Immediately change the product quantity with the given slug in products
+    let index = products.findIndex((item) => item.slug == slug);
+    let newProducts = JSON.parse(JSON.stringify(products));
+    if (action === "plus") {
+      newProducts[index].quantity = parseInt(initialQuantity) + 1;
+    } else {
+      newProducts[index].quantity = parseInt(initialQuantity) - 1;
+    }
+    setProducts(newProducts);
+
+    // Immediately change the product quantity with the given slug in dropdown
+    let indexDrop = dropdown.findIndex((item) => item.slug == slug);
+    let newDropdown = JSON.parse(JSON.stringify(dropdown));
+    if (action === "plus") {
+      newDropdown[indexDrop].quantity = parseInt(initialQuantity) + 1;
+    } else {
+      newDropdown[indexDrop].quantity = parseInt(initialQuantity) - 1;
+    }
+    setDropdown(newDropdown);
+
+    setLoadingSearch(true);
+    const response = await fetch("/api/action", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ action, slug, initialQuantity }),
+    });
+    let rjson = await response.json();
+    console.log(rjson);
+    setLoadingSearch(false);
+  }
 
   return (
     <>
@@ -116,12 +159,19 @@ export default function Home() {
                 key={item.slug}
                 className="w-full bg-blue-200 rounded-lg p-1 flex my-1"
               >
-                <p className="mx-2">
-                  {item.slug} (
-                  <span className="font-semibold">{item.quantity}</span>{" "}
-                  Available of{" "}
-                  <span className="font-semibold">₹ {item.price}</span>)
-                </p>
+                <div className="flex justify-between w-full">
+                  <p className="mx-2">
+                    {item.slug} (
+                    <span className="font-semibold">{item.quantity}</span>{" "}
+                    Available of{" "}
+                    <span className="font-semibold">₹ {item.price}</span>)
+                  </p>
+                  <div className="flex gap-1 items-center">
+                    <button onClick={() => { buttonAction("plus", item.slug, item.quantity); }} disabled={loadingSearch} className="disabled:bg-blue-400 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-2 rounded-md h-8">+</button>
+                    <p className="w-10 text-center">{item.quantity}</p>
+                    <button onClick={() => { buttonAction("minus", item.slug, item.quantity); }} disabled={loadingSearch} className="disabled:bg-blue-400 bg-blue-500 hover:bg-blue-600 text-white font-semibold px-2 rounded-md h-8">-</button>
+                  </div>
+                </div>
               </div>
             );
           })}
@@ -196,7 +246,20 @@ export default function Home() {
               onClick={addProduct}
               className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md"
             >
-              Add Item
+              {loadingAddItem ? (
+                <ThreeDots
+                  height="30"
+                  width="75"
+                  radius="9"
+                  color="white"
+                  ariaLabel="three-dots-loading"
+                  wrapperStyle={{}}
+                  wrapperClassName=""
+                  visible={true}
+                />
+              ) : (
+                "Add Item"
+              )}
             </button>
           </div>
         </form>
@@ -233,6 +296,20 @@ export default function Home() {
             })}
           </tbody>
         </table>
+        <div className="flex justify-center">
+          {loadingCurrStock && (
+            <ThreeDots
+              height="80"
+              width="80"
+              radius="9"
+              color="blue"
+              ariaLabel="three-dots-loading"
+              wrapperStyle={{}}
+              wrapperClassName=""
+              visible={true}
+            />
+          )}
+        </div>
       </div>
       <Footer />
     </>
