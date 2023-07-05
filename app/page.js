@@ -1,6 +1,7 @@
 "use client";
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import Head from "next/head";
 import { useState, useEffect } from "react";
 import { ThreeDots } from "react-loader-spinner";
 
@@ -149,10 +150,15 @@ export default function Home() {
 
   return (
     <>
+      <Head>
+        <link rel="icon" href="favicon.png" type="image/png" />
+        <title>Hello</title>
+      </Head>
+
       <Header />
 
       {/* Search a product  */}
-      <div className="container mx-auto px-4 py-8 bg-blue-50 rounded-lg">
+      <div className="container mx-auto px-4 py-8 bg-blue-50 rounded-lg mt-3">
         <div className="flex flex-col md:flex-row items-center justify-center">
           <div className="m-2">
             <select className="form-select block border-4 border-blue-200 rounded-lg p-1">
@@ -234,7 +240,7 @@ export default function Home() {
       </div>
 
       {/* Display Current Stock */}
-      <div className="container mx-auto">
+      <div className="container mx-auto mb-3">
         <h1 className="text-2xl font-semibold text-center my-3">
           Current Stock
         </h1>
@@ -244,7 +250,7 @@ export default function Home() {
               <th className="py-2 px-4 border-b">Item</th>
               <th className="py-2 px-4 border-b">Quantity</th>
               <th className="py-2 px-4 border-b">Price</th>
-              <th className="py-2 px-4 border-b flex justify-center">{loadingDelete ? (
+              <th className="hidden py-2 px-4 border-b md:flex justify-center">{loadingDelete ? (
                 <ThreeDots height="30" width="70" radius="9" color="red" ariaLabel="three-dots-loading" wrapperStyle={{}} wrapperClassName="" visible={true} />
               ) : (
                 "Action"
@@ -258,7 +264,7 @@ export default function Home() {
                   <td className="py-2 px-4 border-b text-center">{product.slug}</td>
                   <td className="py-2 px-4 border-b text-center">{product.quantity}</td>
                   <td className="py-2 px-4 border-b text-center">₹ {product.price}</td>
-                  <td className="py-2 px-4 border-b text-center"><button disabled={loadingDelete} onClick={() => { handleDelete(product.slug); }} className="bg-red-400 hover:bg-red-500 p-1 rounded-lg border border-red-500 disabled:bg-red-300" >Delete</button></td>
+                  <td className="hidden md:block py-2 px-4 border-b text-center"><button disabled={loadingDelete} onClick={() => { handleDelete(product.slug); }} className="bg-red-400 hover:bg-red-500 p-1 rounded-lg border border-red-500 disabled:bg-red-300" >Delete</button></td>
                 </tr>
               );
             })}
