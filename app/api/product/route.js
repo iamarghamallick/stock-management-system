@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
-    const uri = "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
+  const uri = "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
 
   const client = new MongoClient(uri);
 
@@ -12,7 +12,7 @@ export async function GET(request) {
 
     const query = {};
     const products = await inventory.find(query).toArray();
-    // console.log(allProducts);
+    // console.log(products);
     return NextResponse.json({ success: true, products });
   } finally {
     await client.close();
