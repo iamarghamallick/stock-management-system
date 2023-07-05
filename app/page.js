@@ -14,6 +14,7 @@ export default function Home() {
   const [loadingCurrStock, setLoadingCurrStock] = useState(false);
   const [loadingAddItem, setLoadingAddItem] = useState(false);
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,9 +61,11 @@ export default function Home() {
     }
 
     // sync the product
+    setLoadingCurrStock(true);
     let response = await fetch("/api/product");
     let rJson = await response.json();
     setProducts(rJson.products);
+    setLoadingCurrStock(false);
   };
 
   const onDropdownEdit = async (e) => {
@@ -114,6 +117,35 @@ export default function Home() {
     // console.log(rjson);
     setLoadingSearch(false);
   };
+
+  const handleDelete = async (slug) => {
+    console.log(slug)
+    try {
+      setLoadingDelete(true);
+      const response = await fetch("/api/delete", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ slug }),
+      });
+      if (response.ok) {
+        console.log(response);
+      } else {
+        console.log("Error");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
+    // sync the product
+    setLoadingCurrStock(true);
+    let response = await fetch("/api/product");
+    let rJson = await response.json();
+    setProducts(rJson.products);
+    setLoadingDelete(false);
+    setLoadingCurrStock(false);
+  }
 
   return (
     <>
@@ -212,6 +244,11 @@ export default function Home() {
               <th className="py-2 px-4 border-b">Item</th>
               <th className="py-2 px-4 border-b">Quantity</th>
               <th className="py-2 px-4 border-b">Price</th>
+              <th className="py-2 px-4 border-b flex justify-center">{loadingDelete ? (
+                <ThreeDots height="30" width="70" radius="9" color="red" ariaLabel="three-dots-loading" wrapperStyle={{}} wrapperClassName="" visible={true} />
+              ) : (
+                "Action"
+              )}</th>
             </tr>
           </thead>
           <tbody>
@@ -221,6 +258,7 @@ export default function Home() {
                   <td className="py-2 px-4 border-b text-center">{product.slug}</td>
                   <td className="py-2 px-4 border-b text-center">{product.quantity}</td>
                   <td className="py-2 px-4 border-b text-center">₹ {product.price}</td>
+                  <td className="py-2 px-4 border-b text-center"><button disabled={loadingDelete} onClick={() => { handleDelete(product.slug); }} className="bg-red-400 hover:bg-red-500 p-1 rounded-lg border border-red-500 disabled:bg-red-300" >Delete</button></td>
                 </tr>
               );
             })}

@@ -3,15 +3,15 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
   // Replace the uri string with your connection string.
-  const uri = "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
+  const uri = process.env.URI;
 
   const client = new MongoClient(uri);
 
   try {
     const database = client.db("stock");
     const products = database.collection("inventory");
-    
-    const query = {  };
+
+    const query = {};
     const product = await products.find(query).toArray();
     console.log(product);
     return NextResponse.json({ "argha": 2023, product });

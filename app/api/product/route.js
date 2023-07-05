@@ -2,7 +2,7 @@ import { MongoClient } from "mongodb";
 import { NextResponse } from "next/server";
 
 export async function GET(request) {
-  const uri = "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
+  const uri = process.env.URI;
 
   const client = new MongoClient(uri);
 
@@ -21,7 +21,7 @@ export async function GET(request) {
 
 export async function POST(request) {
   let body = await request.json();
-  const uri = "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
+  const uri = process.env.URI;
 
   const client = new MongoClient(uri);
 

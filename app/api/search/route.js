@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request) {
   const query = request.nextUrl.searchParams.get("query");
-  const uri =
-    "mongodb+srv://arghamallick:Mp3ZwnY89Y6bhPg9@cluster0.ubx86tf.mongodb.net/?retryWrites=true&w=majority";
+  const uri = process.env.URI;
 
   const client = new MongoClient(uri);
 
